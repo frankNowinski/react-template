@@ -28,5 +28,9 @@ export default {
   resolve: {
     extentions: ['', '.js']
   },
-  devtools: 'eval-source-map'
+  devtools: 'eval-source-map',
+  node: {
+    net: 'empty',
+    dns: 'empty'
+  }
 }
