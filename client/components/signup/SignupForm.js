@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 import TextFieldGroup from '../common/TextFieldGroup';
 import validateInput from '../../../server/shared/validations/signup';
+import capitalize from 'lodash/capitalize';
 
 class SignupForm extends Component {
   constructor(props) {
@@ -13,11 +14,13 @@ class SignupForm extends Component {
       password: '',
       passwordConfirmation: '',
       errors: {},
-      isLoading: false
+      isLoading: false,
+      invalid: false
     }
 
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+    this.checkUserExists = this.checkUserExists.bind(this);
   }
 
   onChange(e) {
@@ -52,6 +55,25 @@ class SignupForm extends Component {
     }
   }
 
+  checkUserExists(e) {
+    const field = e.target.name;
+    const val = e.target.value;
+    if (val !== '') {
+      this.props.isUserExists(val).then(res => {
+        let errors = this.state.errors;
+        let invalid;
+        if (res.data.user) {
+          errors[field] = `${capitalize(field)} is already taken`;
+          invalid = true;
+        } else {
+          errors[field] = '';
+          invalid = false;
+        }
+        this.setState({ errors, invalid });
+      })
+    }
+  }
+
   render() {
     const { errors } = this.state;
     return (
@@ -62,6 +84,7 @@ class SignupForm extends Component {
           error={errors.username}
           label="Username"
           onChange={this.onChange}
+          checkUserExists={this.checkUserExists}
           value={this.state.username}
           field="username"
         />
@@ -70,6 +93,7 @@ class SignupForm extends Component {
           error={errors.email}
           label="Email"
           onChange={this.onChange}
+          checkUserExists={this.checkUserExists}
           value={this.state.email}
           field="email"
         />
@@ -93,7 +117,7 @@ class SignupForm extends Component {
         />
 
         <div className="form-group">
-          <button disabled={this.state.isLoading} className="btn btn-primary btn-lg">Sign up</button>
+          <button disabled={this.state.isLoading || this.state.invalid} className="btn btn-primary btn-lg">Sign up</button>
         </div>
       </form>
     )
@@ -102,7 +126,8 @@ class SignupForm extends Component {
 
 SignupForm.propTypes = {
   userSignupRequest: React.PropTypes.func.isRequired,
-  addFlashMessage: React.PropTypes.func.isRequired
+  addFlashMessage: React.PropTypes.func.isRequired,
+  isUserExists: React.PropTypes.func.isRequired
 }
 
 SignupForm.contextTypes = {
