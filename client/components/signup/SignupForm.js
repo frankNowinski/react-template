@@ -21,7 +21,7 @@ class SignupForm extends Component {
   }
 
   onChange(e) {
-    this.setState({ [e.target.name]: e.target.value});
+    this.setState({ [e.target.name]: e.target.value });
   }
 
   isValid() {
@@ -41,6 +41,10 @@ class SignupForm extends Component {
       this.setState({ errors: {}, isLoading: true });
       this.props.userSignupRequest(this.state).then(
         () => {
+          this.props.addFlashMessage({
+            type: 'success',
+            text: 'You have signed up successfully. Welcome!'
+          })
           this.context.router.push('/');
         },
         ({ data }) => this.setState({ errors: data, isLoading: false})
@@ -97,7 +101,8 @@ class SignupForm extends Component {
 }
 
 SignupForm.propTypes = {
-  userSignupRequest: React.PropTypes.func.isRequired
+  userSignupRequest: React.PropTypes.func.isRequired,
+  addFlashMessage: React.PropTypes.func.isRequired
 }
 
 SignupForm.contextTypes = {
